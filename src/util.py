@@ -5,6 +5,7 @@ import sys
 from PIL import Image
 
 L = 256
+EPS = 0.000001
 
 
 '''
@@ -44,7 +45,7 @@ def histogram_rgb(img):
 '''
 CALCULO DE HISTORGRAMAS HSI
 '''
-SAMPLES = 500
+SAMPLES = 256
 dom_h = [2*np.pi * float(i) / float(SAMPLES) for i in range(SAMPLES)]
 dom_s = [float(i) / float(SAMPLES) for i in  range(SAMPLES)]
 dom_i = [float(i) / float(SAMPLES) for i in  range(SAMPLES)]
