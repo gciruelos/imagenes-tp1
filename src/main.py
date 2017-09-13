@@ -1,4 +1,6 @@
+#!/usr/bin/env python3.6
 import numpy as np
+import p1 as gs
 import matplotlib.pyplot as plt
 from PIL import Image
 from sys import argv
@@ -90,11 +92,14 @@ def piecewise_histogram_transform(im, n, alpha, beta, gamma):
     w_k = [lambda i: W_ks[k](i) / sum(W_ks[j](i) for j in range(n)) for k in range(n)]
     Hs = [sum(w_k[j](i) * Ht_ks[j][i] for j in range(n)) for i in range(l)]
     normHs = [x / sum(Hs) for x in Hs]
-    eq = uniform_hist(im2, normHs)
+    eq = gs.transformada(im2[:,:,2], normHs)
+    im2[:,:,2] = np.vectorize(lambda x: x / 255, otypes = [float])(eq) 
+    imRes = util.to_rgb(im2)
+
     #print(eq)
     plt.figure(figsize=(16, 10))
-    plt.subplot(2,2,1).imshow(im2[:,:,2], cmap='gray', vmin=0.0, vmax=1.0)
-    plt.subplot(2,2,2).imshow(eq[:,:,2], cmap='gray', vmin=0.0, vmax=1.0)
+    plt.subplot(2,2,1).imshow(im)
+    plt.subplot(2,2,2).imshow(imRes)
     plt.show()
     # print(Hs)
 
