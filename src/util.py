@@ -160,32 +160,8 @@ def to_rgb(img):
 GRAFICAR
 '''
 
-def sbys_histogram(im1, ims_hsi, hists_i, accum_i, hists_i_nuevos, accum_i_nuevos, im2):
+def sbys_histogram(im1, i_viejo, i_nuevo):
     plt.figure(figsize=(16, 10))
-    if argv == '--end':
-        gs = gridspec.GridSpec(1, 2)
-        plt.subplot(gs[0]).imshow(im1)
-        plt.subplot(gs[1]).imshow(im2)
-        if len(sys.argv) > sys.argv.index('--end') + 1:
-            plt.savefig(sys.argv[sys.argv.index('--end') + 1], bbox_inches='tight')
-        else:
-            plt.show()
-        return
-    n = len(hists_i) + 1
-    gs = gridspec.GridSpec(
-        8, n, width_ratios=[1 for _ in range(n)], height_ratios=[1, 1, 1, 1])
-
-    plt.subplot(gs[0:2, 0:(n+1)]).imshow(im1)
-    plt.subplot(gs[2:4, 0]).imshow(ims_hsi[0][:,:,2], cmap='gray', vmin=0.0, vmax=2*np.pi)
-    for i in range(n):
-        plt.subplot(gs[2, i+1]).plot(range(L), hists_i, 'k-')
-        plt.subplot(gs[3, i+1]).plot(range(L), accum_i, 'k-')
-    plt.subplot(gs[4:6, 0]).imshow(ims_hsi[1][:,:,2], cmap='gray', vmin=0.0, vmax=2*np.pi)
-    for i in range(n):
-        plt.subplot(gs[4, i+1]).plot(range(L), hists_i_nuevo, 'k-')
-        plt.subplot(gs[5, i+1]).plot(range(L), accum_i_nuevo, 'k-')
-    plt.subplot(gs[6:8, 0:(n+1)]).imshow(im2)
-    if argv is not None:
-        plt.savefig(argv, bbox_inches='tight')
-    else:
-        plt.show()
+    plt.plot(range(L), i_viejo, 'k-')
+    plt.plot(range(L), i_nuevo, 'k-')
+    plt.show()

@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from PIL import Image
 from sys import argv
 import util
@@ -38,6 +39,34 @@ def piecewise_histogram_transform(im, n, alpha, beta, gamma):
         W_k = Wk(H_k, k)
         return [W_k(i) if i in range(desde,hasta) else 1 for i in range(util.L)]
 
+    def uniform_hist(image, output_histogram):
+        accum_i = [0 for i in range(util.L)]
+        # Calculo acumulada
+        for i in range(256):
+            for j in range(i):
+                accum_i[i] += output_histogram[j]
+                if accum_i[i] > 1.0: accum_r[i] = 1.0
+
+        # Calculo wdot
+        rango_busqueda = [float(i) / len(accum_i) for i in range(len(accum_i))]
+        def w_dot(r):
+            # La intensidad buscada es la de la acumulada.
+            wi = accum_i[util.search_not_exact(r[2], rango_busqueda)]
+            # Como los colores estan dentro de un cono puede que la saturacion sea incorrecta
+            # si cambio la intensidad, con lo cual corrigo la saturacion
+            if wi > 0.5 and r[1] > 2 - 0.5 * wi:
+                s = 2 - 0.5 * wi
+            if wi < 0.5 and r[1] > 2 * i:
+                s = 2 * wi
+            else:
+                s = r[1]
+            return [r[0], s, wi]
+        ret = image.copy()
+        for i in range(ret.shape[0]):
+            for j in range(ret.shape[1]):
+                ret[i][j] = w_dot(ret[i][j])
+        return ret
+
 
     im2 = util.to_hsi(im)
 
@@ -60,7 +89,14 @@ def piecewise_histogram_transform(im, n, alpha, beta, gamma):
 
     w_k = [lambda i: W_ks[k](i) / sum(W_ks[j](i) for j in range(n)) for k in range(n)]
     Hs = [sum(w_k[j](i) * Ht_ks[j][i] for j in range(n)) for i in range(l)]
-    print(Hs)
+    normHs = [x / sum(Hs) for x in Hs]
+    eq = uniform_hist(im2, normHs)
+    #print(eq)
+    plt.figure(figsize=(16, 10))
+    plt.subplot(2,2,1).imshow(im2[:,:,2], cmap='gray', vmin=0.0, vmax=1.0)
+    plt.subplot(2,2,2).imshow(eq[:,:,2], cmap='gray', vmin=0.0, vmax=1.0)
+    plt.show()
+    # print(Hs)
 
 im = np.asarray(Image.open(argv[1]).convert('RGB'))
 piecewise_histogram_transform(im, N, ALPHA, BETA, GAMMA)
