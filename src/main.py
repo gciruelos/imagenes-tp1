@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python
 import numpy as np
 import p1 as gs
 import p2
@@ -7,16 +7,22 @@ from PIL import Image
 from sys import argv
 import util
 
-N = 10
+LARGOS = [1,5,1]
 ALPHA = 0.0000001
 BETA = 1 - ALPHA
 GAMMA = 0.
 
-def piecewise_histogram_transform(I, n, alpha, beta, gamma):
-
+def piecewise_histogram_transform(I, particiones, alpha, beta, gamma):
+    largo_particiones = list(map(lambda x: round(256.0 * x / sum(particiones)), particiones))
+    # Arreglo el ultimo para que sumen 256
+    largo_particiones[-1] += 256 - sum(largo_particiones)
+    rangos = []
+    for i in range(len(particiones)):
+        desde = sum(largo_particiones[:i])
+        rangos.append((desde, desde+largo_particiones[i]))
+    
+    n = len(particiones)
     histograma = gs.histograma(I)
-    r = np.linspace(0, util.L, n + 1, dtype = int)
-    rangos = np.column_stack((r[:-1], r[1:]))
 
     H0 = np.zeros((n, util.L), dtype = int)
     for k, (desde, hasta) in enumerate(rangos):
@@ -75,6 +81,6 @@ def piecewise_histogram_transform(I, n, alpha, beta, gamma):
 im = p2.toHSI(np.asarray(Image.open(argv[1]).convert('RGB')))
 eqI = piecewise_histogram_transform(np.vectorize(lambda x: x * 255,
                                                  otypes = [np.uint8])(im[2]),
-                                    N, ALPHA, BETA, GAMMA)
+                                    LARGOS, ALPHA, BETA, GAMMA)
 
 Image.fromarray(p2.toRGB(im[0], im[1], eqI), mode = 'RGB').show()#.save("../Resultados/wom.png")
