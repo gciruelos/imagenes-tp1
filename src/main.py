@@ -26,7 +26,10 @@ def piecewise_histogram_transform(im, n, alpha, beta, gamma):
         sigmath = abs(128 - I_m)
         sigmak = max(sigmath, vk)
         uk = (ha + hb) / 2
-        return lambda i: np.exp(- ((i-uk) ** 2) / (2 * (sigmak ** 2)))
+        W_k = np.empty(util.L)
+        for i in range(util.L):
+            W_k[i] = np.exp(- ((i-uk) ** 2) / (2 * (sigmak ** 2)))
+        return W_k
 
 
     def Hu_k(H_k, k):
@@ -34,7 +37,7 @@ def piecewise_histogram_transform(im, n, alpha, beta, gamma):
         W_k = Wk(H_k, k)
         hu_k = np.empty(util.L)
         for i in range(len(hu_k)):
-            hu_k[i] = W_k(i) if i in range(desde,hasta) else 1
+            hu_k[i] = W_k[i] if i in range(desde,hasta) else 1
         return hu_k
 
     im2 = util.to_hsi(im)
@@ -50,16 +53,20 @@ def piecewise_histogram_transform(im, n, alpha, beta, gamma):
 
     for k, H_k in enumerate(histogramas_divididos):
         l = len(H_k)
-        H_k = np.array(H_k)
-        Hu = np.array(Hu_k(H_k, k))
+        Hu = Hu_k(H_k, k)
         D = (-1) * np.eye(l-1, l) + np.eye(l-1, l, k=1)
         Ht_k = np.dot(np.linalg.inv((alpha + beta) * np.eye(l) + gamma * np.dot(np.transpose(D), D)),
                       alpha * H_k + beta * Hu)
         Ht_ks.append(Ht_k)
         W_ks.append(Wk(H_k, k))
 
-    w_k = [lambda i: W_ks[k](i) / sum(W_ks[j](i) for j in range(n)) for k in range(n)]
-    Hs = [sum(w_k[j](i) * Ht_ks[j][i] for j in range(n)) for i in range(l)]
+    sumW_k = sum(W_ks)
+    w_k = np.empty((util.L, n))
+    for i, k in np.ndindex(np.shape(w_k)):
+        w_k[(i, k)] = W_ks[k][i] / sumW_k[i]
+    Hs = np.empty(util.L)
+    for i in range(len(Hs)):
+        Hs[i] = sum(w_k[i][j] * Ht_ks[j][i] for j in range(n))
     normHs = [x / sum(Hs) for x in Hs]
     eq = gs.transformada(im2[:,:,2], normHs)
     im2[:,:,2] = np.vectorize(lambda x: x / 255, otypes = [float])(eq)
