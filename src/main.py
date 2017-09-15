@@ -7,10 +7,10 @@ from PIL import Image
 from sys import argv
 import util
 
-N = 4
-ALPHA = 0.
-BETA = 1
-GAMMA = 0.0
+N = 10
+ALPHA = 0.0000001
+BETA = 1 - ALPHA
+GAMMA = 0.
 
 def piecewise_histogram_transform(I, n, alpha, beta, gamma):
 
@@ -59,6 +59,17 @@ def piecewise_histogram_transform(I, n, alpha, beta, gamma):
         Hs[i] = sum(w[(j, i)] * Ht[(j, i)] for j in range(n))
     normHs = np.vectorize(lambda x: x / np.sum(Hs))(Hs)
     eq = gs.transformada(I, normHs)
+
+    plt.subplot(3, 1, 1)
+    for k in range(n):
+        plt.plot(range(util.L), H0[k])
+    plt.subplot(3, 1, 2)
+    for k in range(n):
+        plt.plot(range(util.L), Ht[k])
+    plt.subplot(3, 1, 3)
+    plt.plot(range(util.L), normHs)
+    plt.show()
+
     return np.vectorize(lambda x: x / 255, otypes = [float])(eq)
 
 im = p2.toHSI(np.asarray(Image.open(argv[1]).convert('RGB')))
@@ -66,4 +77,4 @@ eqI = piecewise_histogram_transform(np.vectorize(lambda x: x * 255,
                                                  otypes = [np.uint8])(im[2]),
                                     N, ALPHA, BETA, GAMMA)
 
-Image.fromarray(p2.toRGB(im[0], im[1], eqI), mode = 'RGB').show()
+Image.fromarray(p2.toRGB(im[0], im[1], eqI), mode = 'RGB').show()#.save("../Resultados/wom.png")
