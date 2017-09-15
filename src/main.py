@@ -7,13 +7,19 @@ from PIL import Image
 from sys import argv
 import util
 
-LARGOS = [1,5,1]
+LARGOS = [1 for _ in range(50)]
 ALPHA = 0.0000001
 BETA = 1 - ALPHA
 GAMMA = 0.
 
 def piecewise_histogram_transform(I, particiones, alpha, beta, gamma):
-    largo_particiones = list(map(lambda x: round(256.0 * x / sum(particiones)), particiones))
+    largo_particiones = list(map(lambda x: 256.0 * x / sum(particiones), particiones))
+    # Hacemos dithering para distribuir los largos equitativamente
+    deuda = 0.0
+    for i in range(len(largo_particiones)):
+        nuevo_valor = round(largo_particiones[i] + deuda)
+        deuda += largo_particiones[i] - float(nuevo_valor)
+        largo_particiones[i] = nuevo_valor
     # Arreglo el ultimo para que sumen 256
     largo_particiones[-1] += 256 - sum(largo_particiones)
     rangos = []
