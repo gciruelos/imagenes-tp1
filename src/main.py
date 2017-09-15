@@ -6,80 +6,49 @@ from PIL import Image
 from sys import argv
 import util
 
-N = 3
+N = 2
 ALPHA = 0.5
 BETA = 0.5
 GAMMA = 0.0
 
 def piecewise_histogram_transform(im, n, alpha, beta, gamma):
     def dividir_histogramas(histograma, n):
-        for i in range(n):
-            desde = i*largo_histogramas
-            hasta = (i+1)*largo_histogramas
-
-            zeros = np.zeros(len(histograma))
+        for desde, hasta in rangos:
+            zeros = np.zeros(util.L)
             zeros[desde:hasta] += histograma[desde:hasta]
-            yield (i, list(zeros))
+            yield zeros
 
     def Wk(H_k, k):
-        desde = k*largo_histogramas
-        hasta = (k+1)*largo_histogramas
-        ha = desde
-        hb = (hasta - 1)
-        vk = abs(ha - hb) / 2.0
+        desde, hasta = rangos[k]
+        ha, hb = desde, hasta - 1
+        vk = abs(ha - hb) / 2
         I_m = np.average(H_k[desde:hasta], weights=list(range(desde,hasta)))
-        sigmath = abs(128 - I_m) 
+        sigmath = abs(128 - I_m)
         sigmak = max(sigmath, vk)
-        uk = (ha + hb) / 2.0
-        Wk = lambda i: np.exp(- np.power(i-uk, 2.0) / (2.0 * np.power(sigmak, 2.0)))
-        return Wk
-        
-    
+        uk = (ha + hb) / 2
+        return lambda i: np.exp(- ((i-uk) ** 2) / (2 * (sigmak ** 2)))
+
+
     def Hu_k(H_k, k):
-        desde = k*largo_histogramas
-        hasta = (k+1)*largo_histogramas
+        desde, hasta = rangos[k]
         W_k = Wk(H_k, k)
-        return [W_k(i) if i in range(desde,hasta) else 1 for i in range(util.L)]
-
-    def uniform_hist(image, output_histogram):
-        accum_i = [0 for i in range(util.L)]
-        # Calculo acumulada
-        for i in range(256):
-            for j in range(i):
-                accum_i[i] += output_histogram[j]
-                if accum_i[i] > 1.0: accum_r[i] = 1.0
-
-        # Calculo wdot
-        rango_busqueda = [float(i) / len(accum_i) for i in range(len(accum_i))]
-        def w_dot(r):
-            # La intensidad buscada es la de la acumulada.
-            wi = accum_i[util.search_not_exact(r[2], rango_busqueda)]
-            # Como los colores estan dentro de un cono puede que la saturacion sea incorrecta
-            # si cambio la intensidad, con lo cual corrigo la saturacion
-            if wi > 0.5 and r[1] > 2 - 0.5 * wi:
-                s = 2 - 0.5 * wi
-            if wi < 0.5 and r[1] > 2 * i:
-                s = 2 * wi
-            else:
-                s = r[1]
-            return [r[0], s, wi]
-        ret = image.copy()
-        for i in range(ret.shape[0]):
-            for j in range(ret.shape[1]):
-                ret[i][j] = w_dot(ret[i][j])
-        return ret
-
+        hu_k = np.empty(util.L)
+        for i in range(len(hu_k)):
+            hu_k[i] = W_k(i) if i in range(desde,hasta) else 1
+        return hu_k
 
     im2 = util.to_hsi(im)
 
-    histogram_h, accum_h, histogram_s, accum_s, histogram_i, accum_i = util.histogram_hsi(im2)
-    largo_histogramas = len(histogram_i) // n
-    
-    histogramas_divididos = list(dividir_histogramas(histogram_i, n))
+    histogram_i = gs.histograma(np.vectorize(lambda x: x * 255,
+                                             otypes = [np.uint8])(im2[:,:,2]))
+    r = np.linspace(0, util.L, dtype = int)
+    rangos = np.column_stack((r[:-1], r[1:]))
+
+    histogramas_divididos = dividir_histogramas(histogram_i, n)
     Ht_ks = []
     W_ks = []
 
-    for k, H_k in histogramas_divididos:
+    for k, H_k in enumerate(histogramas_divididos):
         l = len(H_k)
         H_k = np.array(H_k)
         Hu = np.array(Hu_k(H_k, k))
@@ -93,7 +62,7 @@ def piecewise_histogram_transform(im, n, alpha, beta, gamma):
     Hs = [sum(w_k[j](i) * Ht_ks[j][i] for j in range(n)) for i in range(l)]
     normHs = [x / sum(Hs) for x in Hs]
     eq = gs.transformada(im2[:,:,2], normHs)
-    im2[:,:,2] = np.vectorize(lambda x: x / 255, otypes = [float])(eq) 
+    im2[:,:,2] = np.vectorize(lambda x: x / 255, otypes = [float])(eq)
     imRes = util.to_rgb(im2)
 
     #print(eq)
