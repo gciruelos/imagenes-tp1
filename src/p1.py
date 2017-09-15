@@ -68,7 +68,6 @@ def histograma(im):
 #h es el histograma que se manipulará
 def transformada(im, target, h = None, L1 = 256, tipo = np.uint8):
     L2 = 256
-    im = np.vectorize(lambda x: x * 255, otypes = [np.uint8])(im)
     #Si no doy un histograma al llamar a la función, calculo el de la imagen
     if h is None:
         h = histograma(im)

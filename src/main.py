@@ -7,9 +7,9 @@ from PIL import Image
 from sys import argv
 import util
 
-N = 2
-ALPHA = 0.5
-BETA = 0.5
+N = 4
+ALPHA = 0.
+BETA = 1
 GAMMA = 0.0
 
 def piecewise_histogram_transform(I, n, alpha, beta, gamma):
@@ -23,37 +23,40 @@ def piecewise_histogram_transform(I, n, alpha, beta, gamma):
         H0[k][desde:hasta] += histograma[desde:hasta]
 
     W = np.empty((n, util.L), dtype = float)
-    for k in range(len(W)):
+    for k in range(n):
         desde, hasta = rangos[k]
         ha, hb = desde, hasta - 1
         vk = abs(ha - hb) / 2
-        I_m = np.average(H0[k][desde:hasta], weights=list(range(desde,hasta)))
+        pesos = H0[k][desde:hasta]
+        if sum(pesos) != 0:
+            pesos = np.vectorize(lambda x: x / sum(pesos))(pesos)
+        I_m = np.average(np.dot(list(range(desde,hasta)), pesos))
         sigmath = abs(128 - I_m)
         sigmak = max(sigmath, vk)
         uk = (ha + hb) / 2
         for i in range(len(W[k])):
-            W[k][i] = np.exp(- ((i-uk) ** 2) / (2 * (sigmak ** 2)))
+            W[k][i] = np.exp(-(np.power(i-uk, 2) / (2 * np.power(sigmak, 2))))
 
     Hu = np.empty((n, util.L), dtype = float)
-    for k in range(len(Hu)):
+    for k in range(n):
         desde, hasta = rangos[k]
         for i in range(len(Hu[k])):
-            Hu[k][i] = W[k][i] if i in range(desde,hasta) else 1
+            Hu[k][i] = 1 if i in range(desde,hasta) else W[k][i]
 
     Ht = np.empty((n, util.L), dtype = float)
-    for k, H in enumerate(H0):
+    for k in range(n):
         D = (-1) * np.eye(util.L-1, util.L) + np.eye(util.L-1, util.L, k=1)
         Ht[k] = np.dot(np.linalg.inv((alpha + beta) * np.eye(util.L) + gamma *
                                     np.dot(np.transpose(D), D)),
-                      alpha * H + beta * Hu[k])
+                      alpha * H0[k] + beta * Hu[k])
 
     sumW = sum(W)
     w = np.empty((n, util.L))
     for k, i in np.ndindex(np.shape(w)):
-        w[(k, i)] = W[k][i] / sumW[i]
+        w[(k, i)] = W[(k, i)] / sumW[i]
     Hs = np.empty(util.L)
     for i in range(len(Hs)):
-        Hs[i] = sum(w[j][i] * Ht[j][i] for j in range(n))
+        Hs[i] = sum(w[(j, i)] * Ht[(j, i)] for j in range(n))
     normHs = np.vectorize(lambda x: x / np.sum(Hs))(Hs)
     eq = gs.transformada(I, normHs)
     return np.vectorize(lambda x: x / 255, otypes = [float])(eq)
