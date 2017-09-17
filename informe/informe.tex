@@ -1,0 +1,82 @@
+\documentclass[11pt, spanish]{article}
+\usepackage[spanish]{babel}
+\selectlanguage{spanish}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{float}
+\usepackage{graphicx}
+\pdfminorversion=5 
+\pdfcompresslevel=9
+\pdfobjcompresslevel=2
+
+% Margenes
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+%Espaciado
+%\linespread{1.3}
+
+
+\title{Introducción al Procesamiento Digital de Imágenes\\
+Trabajo Práctico 1 \\
+\large Separación de histogramas: \\
+Adaptive extended piecewise histogram equalisation for dark image
+enhancemen}
+\date{}
+\author{}
+
+\begin{document}
+\maketitle
+\begin{center}
+\begin{large}
+\begin{tabular}{|l|l|l|}
+ \hline
+ \textbf{Nombre} & \textbf{L.U.} & \textbf{Correo electrónico} \\
+ \hline
+ Gabriel Thibeault & ??? & ??? \\
+ \hline
+ Gonzalo Ciruelos Rodríguez & 63/14 & gonzalo.ciruelos@gmail.com \\
+ \hline
+\end{tabular}
+\end{large}
+\end{center}
+
+\vspace{10cm}
+
+\large{
+Universidad de Buenos Aires
+
+Facultad de Ciencias Exactas y Naturales
+
+Departamento de Computación
+}
+\newpage
+
+\section{Introducción}
+...
+
+\section{Cómo instalar y usar}
+Para preparar el entorno para poder ejecutar todos los programas,
+primero debe tenerse instalado \texttt{python3} (y su \texttt{pip} correspondiente).
+Luego, debe ejecutarse 
+\begin{verbatim}
+    virtualenv -p python3 venv 
+    . venv/bin/activate
+    pip install -r requirements.txt 
+\end{verbatim}
+\noindent para instalar las dependencias (pillow (para imágenes), numpy y matplotlib).
+\newpage
+
+\section{Estudio sobre la cantidad de histogramas}
+\input{estudio_cantidad_histogramas.tex}
+\newpage
+
+\section{Estudio sobre la variación de los parámetros}
+\input{estudio_variacion_parametros.tex}
+\newpage
+
+\section{Ejemplos}
+\input{ejemplos.tex}
+
+\end{document}
+
