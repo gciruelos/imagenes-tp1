@@ -25,32 +25,29 @@ def RGBtoHSI(R, G, B):
     I = (R + G + B) / 3
     return H, S, I
 
-def HSItoRGB(H, S, I):
-    if 0 <= H < 2*np.pi/3:
-        B = I * (1 - S)
-        R = I * (1 + (S * np.cos(H)/np.cos(np.pi/3 - H)))
-        G = 3 * I - (R + B)
-    elif 2*np.pi/3 <= H < 4*np.pi/3:
-        H -= 2*np.pi/3
-        R = I * (1 - S)
-        G = I * (1 + (S * np.cos(H)/np.cos(np.pi/3 - H)))
-        B = 3 * I - (R + G)
-    elif 4*np.pi/3 <= H < 6*np.pi/3:
-        H -= 4*np.pi/3
-        G = I * (1 - S)
-        B = I * (1 + (S * np.cos(H)/np.cos(np.pi/3 - H)))
-        R = 3 * I - (G + B)
+def HSItoRGB(h, s, i):
+    # arreglo de potenciales problemas (coordenadas fuera del cono).
+    if i > 0.5 and s > 2 - 0.5 * i:
+        s = 2 - 0.5 * i
+    if i < 0.5 and s > 2 * i:
+        s = 2 * i
+
+    if h < 2.0 * np.pi / 3.0:
+        r = i * (1 + s * np.cos(h)                 / np.cos(np.pi/3.0 - h))
+        b = i * (1 - s)
+        g = 3 * i - (r + b)
+    elif h < 4.0 * np.pi / 3.0:
+        g = i * (1 + s * np.cos(h - 2.0*np.pi/3.0) / np.cos(np.pi/3.0 - (h - 2.0*np.pi/3.0)))
+        r = i * (1 - s)
+        b = 3 * i - (r + g)
     else:
-        R, G, B = I, I, I
-    m = max(R, G, B)
-    if m > 1:
-        R /= m
-        G /= m
-        B /= m
-    R *= 255
-    G *= 255
-    B *= 255
-    return R, G, B
+        b = i * (1 + s * np.cos(h - 4.0*np.pi/3.0) / np.cos(np.pi/3.0 - (h - 4.0*np.pi/3.0)))
+        g = i * (1 - s)
+        r = 3 * i - (g + b)
+    r = min(int(256 * r - 0.5), 255)
+    g = min(int(256 * g - 0.5), 255)
+    b = min(int(256 * b - 0.5), 255)
+    return r, g, b
 
 def histRGB(im):
     return (gs.histograma(C) for C in im)

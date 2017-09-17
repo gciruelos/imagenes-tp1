@@ -2,6 +2,7 @@
 import numpy as np
 import p1 as gs
 import p2
+import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 from PIL import Image
 from sys import argv
@@ -11,6 +12,37 @@ LARGOS = [1 for _ in range(50)]
 ALPHA = 0.0000001
 BETA = 1 - ALPHA
 GAMMA = 0.
+
+title = "alpha = "+str(ALPHA)+"; beta = "+str(BETA)+"; gamma = "+str(GAMMA)+"; n = "+str(len(LARGOS))
+
+plt.figure(figsize=(10,10))
+gridsp = gridspec.GridSpec(12, 3)
+# Histogramas
+ax1 = plt.subplot(gridsp[0:4, 0:2])
+ax1.set_title("Separación de histogramas: H^o_k")
+ax1.get_xaxis().set_visible(False)
+ax2 = plt.subplot(gridsp[4:8, 0:2])
+ax2.set_title("Histogramas ecualizados: H^u_k")
+ax2.get_xaxis().set_visible(False)
+ax3 = plt.subplot(gridsp[8:12, 0:2])
+ax3.set_title("Integración de los histogramas: H^s")
+# Imagenes
+ax4 = plt.subplot(gridsp[0:3, 2])
+ax4.set_title("Imagen original")
+ax4.get_xaxis().set_visible(False)
+ax4.get_yaxis().set_visible(False)
+ax5 = plt.subplot(gridsp[3:6, 2])
+ax5.set_title("Canal I original")
+ax5.get_xaxis().set_visible(False)
+ax5.get_yaxis().set_visible(False)
+ax6 = plt.subplot(gridsp[6:9, 2])
+ax6.set_title("Canal I post-algoritmo")
+ax6.get_xaxis().set_visible(False)
+ax6.get_yaxis().set_visible(False)
+ax7 = plt.subplot(gridsp[9:12, 2])
+ax7.set_title("Imagen post-algoritmo")
+ax7.get_xaxis().set_visible(False)
+ax7.get_yaxis().set_visible(False)
 
 def piecewise_histogram_transform(I, particiones, alpha, beta, gamma):
     largo_particiones = list(map(lambda x: 256.0 * x / sum(particiones), particiones))
@@ -72,21 +104,26 @@ def piecewise_histogram_transform(I, particiones, alpha, beta, gamma):
     normHs = np.vectorize(lambda x: x / np.sum(Hs))(Hs)
     eq = gs.transformada(I, normHs)
 
-    plt.subplot(3, 1, 1)
     for k in range(n):
-        plt.plot(range(util.L), H0[k])
-    plt.subplot(3, 1, 2)
+        ax1.plot(range(util.L), H0[k])
     for k in range(n):
-        plt.plot(range(util.L), Ht[k])
-    plt.subplot(3, 1, 3)
-    plt.plot(range(util.L), normHs)
-    plt.show()
+        ax2.plot(range(util.L), Ht[k])
+    ax3.plot(range(util.L), normHs)
 
     return np.vectorize(lambda x: x / 255, otypes = [float])(eq)
 
-im = p2.toHSI(np.asarray(Image.open(argv[1]).convert('RGB')))
+imrgb = np.asarray(Image.open(argv[1]).convert('RGB'))
+im = p2.toHSI(imrgb)
 eqI = piecewise_histogram_transform(np.vectorize(lambda x: x * 255,
                                                  otypes = [np.uint8])(im[2]),
                                     LARGOS, ALPHA, BETA, GAMMA)
+im2 = p2.toRGB(im[0], im[1], eqI)
 
-Image.fromarray(p2.toRGB(im[0], im[1], eqI), mode = 'RGB').show()#.save("../Resultados/wom.png")
+ax4.imshow(imrgb)
+ax5.imshow(im[2])
+ax6.imshow(eqI)
+ax7.imshow(im2)
+plt.subplots_adjust(left=0.2, wspace=0.8, top=0.8)
+plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=0.5)
+plt.show()
+
