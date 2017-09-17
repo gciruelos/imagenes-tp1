@@ -120,10 +120,13 @@ eqI = piecewise_histogram_transform(np.vectorize(lambda x: x * 255,
 im2 = utils.toRGB(im[0], im[1], eqI)
 
 ax4.imshow(imrgb)
-ax5.imshow(im[2])
-ax6.imshow(eqI)
+ax5.imshow(im[2], cmap='gray', vmin=0.0, vmax=1.0)
+ax6.imshow(eqI, cmap='gray', vmin=0.0, vmax=1.0)
 ax7.imshow(im2)
-plt.subplots_adjust(left=0.2, wspace=0.8, top=0.8)
-plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=0.5)
-plt.show()
+plt.tight_layout()
+
+if len(argv) > 2:
+    plt.savefig(argv[2])
+else:
+    plt.show()
 
