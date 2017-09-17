@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 import numpy as np
-import p1 as gs
-import p2
+import utils
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 from PIL import Image
 from sys import argv
-import util
 
-LARGOS = [1 for _ in range(50)]
+L = 256
+
+LARGOS = [4,5,3,2,1]
 ALPHA = 0.0000001
 BETA = 1 - ALPHA
 GAMMA = 0.
@@ -60,13 +60,13 @@ def piecewise_histogram_transform(I, particiones, alpha, beta, gamma):
         rangos.append((desde, desde+largo_particiones[i]))
     
     n = len(particiones)
-    histograma = gs.histograma(I)
+    histograma = utils.histograma(I)
 
-    H0 = np.zeros((n, util.L), dtype = int)
+    H0 = np.zeros((n, L), dtype = int)
     for k, (desde, hasta) in enumerate(rangos):
         H0[k][desde:hasta] += histograma[desde:hasta]
 
-    W = np.empty((n, util.L), dtype = float)
+    W = np.empty((n, L), dtype = float)
     for k in range(n):
         desde, hasta = rangos[k]
         ha, hb = desde, hasta - 1
@@ -81,43 +81,43 @@ def piecewise_histogram_transform(I, particiones, alpha, beta, gamma):
         for i in range(len(W[k])):
             W[k][i] = np.exp(-(np.power(i-uk, 2) / (2 * np.power(sigmak, 2))))
 
-    Hu = np.empty((n, util.L), dtype = float)
+    Hu = np.empty((n, L), dtype = float)
     for k in range(n):
         desde, hasta = rangos[k]
         for i in range(len(Hu[k])):
             Hu[k][i] = 1 if i in range(desde,hasta) else W[k][i]
 
-    Ht = np.empty((n, util.L), dtype = float)
+    Ht = np.empty((n, L), dtype = float)
     for k in range(n):
-        D = (-1) * np.eye(util.L-1, util.L) + np.eye(util.L-1, util.L, k=1)
-        Ht[k] = np.dot(np.linalg.inv((alpha + beta) * np.eye(util.L) + gamma *
+        D = (-1) * np.eye(L-1, L) + np.eye(L-1, L, k=1)
+        Ht[k] = np.dot(np.linalg.inv((alpha + beta) * np.eye(L) + gamma *
                                     np.dot(np.transpose(D), D)),
                       alpha * H0[k] + beta * Hu[k])
 
     sumW = sum(W)
-    w = np.empty((n, util.L))
+    w = np.empty((n, L))
     for k, i in np.ndindex(np.shape(w)):
         w[(k, i)] = W[(k, i)] / sumW[i]
-    Hs = np.empty(util.L)
+    Hs = np.empty(L)
     for i in range(len(Hs)):
         Hs[i] = sum(w[(j, i)] * Ht[(j, i)] for j in range(n))
     normHs = np.vectorize(lambda x: x / np.sum(Hs))(Hs)
-    eq = gs.transformada(I, normHs)
+    eq = utils.transformada(I, normHs)
 
     for k in range(n):
-        ax1.plot(range(util.L), H0[k])
+        ax1.plot(range(L), H0[k])
     for k in range(n):
-        ax2.plot(range(util.L), Ht[k])
-    ax3.plot(range(util.L), normHs)
+        ax2.plot(range(L), Ht[k])
+    ax3.plot(range(L), normHs)
 
     return np.vectorize(lambda x: x / 255, otypes = [float])(eq)
 
 imrgb = np.asarray(Image.open(argv[1]).convert('RGB'))
-im = p2.toHSI(imrgb)
+im = utils.toHSI(imrgb)
 eqI = piecewise_histogram_transform(np.vectorize(lambda x: x * 255,
                                                  otypes = [np.uint8])(im[2]),
                                     LARGOS, ALPHA, BETA, GAMMA)
-im2 = p2.toRGB(im[0], im[1], eqI)
+im2 = utils.toRGB(im[0], im[1], eqI)
 
 ax4.imshow(imrgb)
 ax5.imshow(im[2])
