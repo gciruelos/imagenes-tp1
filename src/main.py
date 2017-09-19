@@ -8,10 +8,10 @@ from sys import argv
 
 L = 256
 
-LARGOS = [1,1,1,1,1]
-ALPHA = 0.1
-BETA = 1 - ALPHA
-GAMMA = 0.
+LARGOS = [1,5]
+ALPHA = 0.5
+BETA = 0.4
+GAMMA = 0.1
 
 title = "alpha = "+str(ALPHA)+"; beta = "+str(BETA)+"; gamma = "+str(GAMMA)+"; n = "+str(len(LARGOS))
 
@@ -22,7 +22,7 @@ ax1 = plt.subplot(gridsp[0:4, 0:2])
 ax1.set_title("Separación de histogramas: H⁰_k")
 ax1.get_xaxis().set_visible(False)
 ax2 = plt.subplot(gridsp[4:8, 0:2])
-ax2.set_title("Histogramas ecualizados: Hᵘ_k")
+ax2.set_title("Histogramas ecualizados: Hᵗ_k")
 ax2.get_xaxis().set_visible(False)
 ax3 = plt.subplot(gridsp[8:12, 0:2])
 ax3.set_title("Integración de los histogramas: Hˢ")
