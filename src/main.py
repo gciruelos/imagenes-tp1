@@ -8,41 +8,72 @@ from sys import argv
 
 L = 256
 
-LARGOS = [1,5]
-ALPHA = 0.5
+LARGOS = [1 for _ in range(10)]
+ALPHA = 0.4
 BETA = 0.4
-GAMMA = 0.1
+GAMMA = 0.2
+flip = False
 
 title = "alpha = "+str(ALPHA)+"; beta = "+str(BETA)+"; gamma = "+str(GAMMA)+"; n = "+str(len(LARGOS))
 
-plt.figure(figsize=(10,10))
-gridsp = gridspec.GridSpec(12, 3)
-# Histogramas
-ax1 = plt.subplot(gridsp[0:4, 0:2])
-ax1.set_title("Separación de histogramas: H⁰_k")
-ax1.get_xaxis().set_visible(False)
-ax2 = plt.subplot(gridsp[4:8, 0:2])
-ax2.set_title("Histogramas ecualizados: Hᵗ_k")
-ax2.get_xaxis().set_visible(False)
-ax3 = plt.subplot(gridsp[8:12, 0:2])
-ax3.set_title("Integración de los histogramas: Hˢ")
-# Imagenes
-ax4 = plt.subplot(gridsp[0:3, 2])
-ax4.set_title("Imagen original")
-ax4.get_xaxis().set_visible(False)
-ax4.get_yaxis().set_visible(False)
-ax5 = plt.subplot(gridsp[3:6, 2])
-ax5.set_title("Canal I original")
-ax5.get_xaxis().set_visible(False)
-ax5.get_yaxis().set_visible(False)
-ax6 = plt.subplot(gridsp[6:9, 2])
-ax6.set_title("Canal I post-algoritmo")
-ax6.get_xaxis().set_visible(False)
-ax6.get_yaxis().set_visible(False)
-ax7 = plt.subplot(gridsp[9:12, 2])
-ax7.set_title("Imagen post-algoritmo")
-ax7.get_xaxis().set_visible(False)
-ax7.get_yaxis().set_visible(False)
+if not flip:
+    plt.figure(figsize=(10,10))
+    gridsp = gridspec.GridSpec(12, 3)
+    # Histogramas
+    ax1 = plt.subplot(gridsp[0:4, 0:2])
+    ax1.set_title("Separación de histogramas: H⁰_k")
+    ax1.get_xaxis().set_visible(False)
+    ax2 = plt.subplot(gridsp[4:8, 0:2])
+    ax2.set_title("Histogramas ecualizados: Hᵗ_k")
+    ax2.get_xaxis().set_visible(False)
+    ax3 = plt.subplot(gridsp[8:12, 0:2])
+    ax3.set_title("Integración de los histogramas: Hˢ")
+    # Imagenes
+    ax4 = plt.subplot(gridsp[0:3, 2])
+    ax4.set_title("Imagen original")
+    ax4.get_xaxis().set_visible(False)
+    ax4.get_yaxis().set_visible(False)
+    ax5 = plt.subplot(gridsp[3:6, 2])
+    ax5.set_title("Canal I original")
+    ax5.get_xaxis().set_visible(False)
+    ax5.get_yaxis().set_visible(False)
+    ax6 = plt.subplot(gridsp[6:9, 2])
+    ax6.set_title("Canal I post-algoritmo")
+    ax6.get_xaxis().set_visible(False)
+    ax6.get_yaxis().set_visible(False)
+    ax7 = plt.subplot(gridsp[9:12, 2])
+    ax7.set_title("Imagen post-algoritmo")
+    ax7.get_xaxis().set_visible(False)
+    ax7.get_yaxis().set_visible(False)
+else:
+    plt.figure(figsize=(10,10))
+    gridsp = gridspec.GridSpec(12, 3)
+    # Histogramas
+    ax1 = plt.subplot(gridsp[0:4, 1:3])
+    ax1.set_title("Separación de histogramas: H⁰_k")
+    ax1.get_xaxis().set_visible(False)
+    ax2 = plt.subplot(gridsp[4:8, 1:3])
+    ax2.set_title("Histogramas ecualizados: Hᵗ_k")
+    ax2.get_xaxis().set_visible(False)
+    ax3 = plt.subplot(gridsp[8:12, 1:3])
+    ax3.set_title("Integración de los histogramas: Hˢ")
+    # Imagenes
+    ax4 = plt.subplot(gridsp[0:3, 0])
+    ax4.set_title("Imagen original")
+    ax4.get_xaxis().set_visible(False)
+    ax4.get_yaxis().set_visible(False)
+    ax5 = plt.subplot(gridsp[3:6, 0])
+    ax5.set_title("Canal I original")
+    ax5.get_xaxis().set_visible(False)
+    ax5.get_yaxis().set_visible(False)
+    ax6 = plt.subplot(gridsp[6:9, 0])
+    ax6.set_title("Canal I post-algoritmo")
+    ax6.get_xaxis().set_visible(False)
+    ax6.get_yaxis().set_visible(False)
+    ax7 = plt.subplot(gridsp[9:12, 0])
+    ax7.set_title("Imagen post-algoritmo")
+    ax7.get_xaxis().set_visible(False)
+    ax7.get_yaxis().set_visible(False)
 
 def piecewise_histogram_transform(I, particiones, alpha, beta, gamma):
     largo_particiones = list(map(lambda x: 256.0 * x / sum(particiones), particiones))
