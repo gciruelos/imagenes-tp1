@@ -8,8 +8,8 @@ from sys import argv
 
 L = 256
 
-LARGOS = [4,5,3,2,1]
-ALPHA = 0.0000001
+LARGOS = [1,1,1,1,1]
+ALPHA = 0.1
 BETA = 1 - ALPHA
 GAMMA = 0.
 
@@ -62,7 +62,7 @@ def piecewise_histogram_transform(I, particiones, alpha, beta, gamma):
     n = len(particiones)
     histograma = utils.histograma(I)
 
-    H0 = np.zeros((n, L), dtype = int)
+    H0 = np.zeros((n, L), dtype = float)
     for k, (desde, hasta) in enumerate(rangos):
         H0[k][desde:hasta] += histograma[desde:hasta]
 

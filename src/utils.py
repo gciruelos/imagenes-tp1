@@ -4,9 +4,12 @@ import numpy as np
 from sys import argv
 
 def histograma(im):
-    h = np.zeros(256, dtype = int)
+    h = np.zeros(256, dtype = float)
+    s = 0
     for v in np.nditer(im):
-        h[v] += 1
+        s += 1
+    for v in np.nditer(im):
+        h[v] += 1./s
     return h
 
 #Función general para la transformada
