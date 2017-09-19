@@ -1,5 +1,5 @@
 
-informe.pdf: informe.tex estudio_cantidad_histogramas.tex estudio_variacion_parametros.tex ejemplos.tex
+informe.pdf: informe.tex estudio_cantidad_histogramas.tex estudio_variacion_parametros.tex ejemplos.tex imgs/*.pdf
 	latexmk -pdf -pdflatex="pdflatex -interaction=nonstopmode" -use-make informe.tex
 
 view-informe: informe.pdf
