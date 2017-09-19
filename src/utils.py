@@ -2,6 +2,9 @@
 from PIL import Image
 import numpy as np
 from sys import argv
+import math
+
+EPS = 0.0001
 
 def histograma(im):
     h = np.zeros(256, dtype = float)
@@ -51,23 +54,19 @@ def transformada(im, target, h = None, L1 = 256, tipo = np.uint8):
     return np.vectorize(lambda x: Y[x], otypes = [tipo])(im)
 
 def RGBtoHSI(R, G, B):
-    R /= 255
-    G /= 255
-    B /= 255
-    n = (R - G) + (R - B)
-    n /= 2
-    d = np.sqrt((R - G) ** 2 + (R - B) * (G - B))
-    θ = np.arccos(n/d)
-    if B <= G:
-        H = θ
+    r = R / 255
+    g = G / 255
+    b = B / 255
+
+    cuenta_h = np.arccos(
+        (0.5 * ((r - g) + (r - b))) / (EPS + np.power(np.power(r-g, 2.0) + (r-b)*(g-b), 0.5)))
+    if b <= g:
+        h = cuenta_h
     else:
-        H = 2 * np.pi - θ
-    if R + G + B != 0:
-        S = 1 - 3 * min(R, G, B) / (R + G + B)
-    else:
-        S = 0
-    I = (R + G + B) / 3
-    return H, S, I
+        h = 2*np.pi - cuenta_h
+    s = 1.0 - 3.0 * float(min(r,g,b)) / (EPS + float(r + g + b))
+    i = float(r + g + b) / 3.0
+    return h, s, i
 
 def HSItoRGB(h, s, i):
     # arreglo de potenciales problemas (coordenadas fuera del cono).

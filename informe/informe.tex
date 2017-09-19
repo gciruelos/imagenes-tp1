@@ -53,7 +53,19 @@ Departamento de Computación
 \newpage
 
 \section{Introducción}
-...
+Este trabajo se basa en el trabajo
+\emph{Adaptive extended piecewise histogram equalisation for dark image enhancement},
+de Zhigang Ling, Yan Liang, Yaonan Wang, He Shen y Xiao Lu.
+Este trabajo propone la idea de dividir el histograma de una imágen de manera adaptativa, y luego
+ecualizar cada separación por separado, usando información más ``local''. Finalmente, todas
+las ecualizaciones parciales se combinan para obtener el resultado final.
+
+El algoritmo tiene varios parámetros con los que experimentaremos aquí. Más especificamente tiene dos parámetros
+$\alpha$ y $\beta$ que regulan a cual histograma se le dará mayor importancia, si al original o al ecualizado.
+Además, tenemos un parametro $\gamma$ que nos permite suavizar el histograma (a más alto, más suavizado). Estos tres
+parámetros deben sumar 1.
+
+Finalmente, el último parámetro del problema es la cantidad (y el tamaño) de las subdivisiones del histograma.
 
 \section{Cómo instalar y usar}
 Para preparar el entorno para poder ejecutar todos los programas,
