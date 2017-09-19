@@ -19,13 +19,13 @@ plt.figure(figsize=(10,10))
 gridsp = gridspec.GridSpec(12, 3)
 # Histogramas
 ax1 = plt.subplot(gridsp[0:4, 0:2])
-ax1.set_title("Separación de histogramas: H^o_k")
+ax1.set_title("Separación de histogramas: H⁰_k")
 ax1.get_xaxis().set_visible(False)
 ax2 = plt.subplot(gridsp[4:8, 0:2])
-ax2.set_title("Histogramas ecualizados: H^u_k")
+ax2.set_title("Histogramas ecualizados: Hᵘ_k")
 ax2.get_xaxis().set_visible(False)
 ax3 = plt.subplot(gridsp[8:12, 0:2])
-ax3.set_title("Integración de los histogramas: H^s")
+ax3.set_title("Integración de los histogramas: Hˢ")
 # Imagenes
 ax4 = plt.subplot(gridsp[0:3, 2])
 ax4.set_title("Imagen original")
@@ -58,7 +58,7 @@ def piecewise_histogram_transform(I, particiones, alpha, beta, gamma):
     for i in range(len(particiones)):
         desde = sum(largo_particiones[:i])
         rangos.append((desde, desde+largo_particiones[i]))
-    
+
     n = len(particiones)
     histograma = utils.histograma(I)
 
